@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import ProductCard from "../components/product/ProductCard";
 import ProductFilters from "../components/product/ProductFilters";
@@ -10,32 +10,80 @@ const normalizeCategory = (category) => {
 
 const Shop = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const initialCategory = searchParams.get("category") || "all";
 
-  const [activeCategory, setActiveCategory] = useState(initialCategory);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [activeCategory, setActiveCategory] = useState(
+    searchParams.get("category") || "all",
+  );
+
+  const [searchTerm, setSearchTerm] = useState(
+    searchParams.get("search") || "",
+  );
+
+  useEffect(() => {
+    setActiveCategory(
+      searchParams.get("category") || "all",
+    );
+
+    setSearchTerm(searchParams.get("search") || "");
+  }, [searchParams]);
 
   const handleCategoryChange = (category) => {
     setActiveCategory(category);
 
+    const nextParams = new URLSearchParams(searchParams);
+
     if (category === "all") {
-      searchParams.delete("category");
+      nextParams.delete("category");
     } else {
-      searchParams.set("category", category);
+      nextParams.set("category", category);
     }
 
-    setSearchParams(searchParams);
+    setSearchParams(nextParams, { replace: true });
+  };
+
+  const handleSearchChange = (value) => {
+    setSearchTerm(value);
+
+    const nextParams = new URLSearchParams(searchParams);
+    const query = value.trim();
+
+    if (query) {
+      nextParams.set("search", value);
+    } else {
+      nextParams.delete("search");
+    }
+
+    setSearchParams(nextParams, { replace: true });
+  };
+
+  const clearFilters = () => {
+    setActiveCategory("all");
+    setSearchTerm("");
+    setSearchParams({}, { replace: true });
   };
 
   const filteredProducts = useMemo(() => {
+    const normalizedSearch = searchTerm
+      .toLowerCase()
+      .trim();
+
     return products.filter((product) => {
       const matchesCategory =
         activeCategory === "all" ||
-        normalizeCategory(product.category) === activeCategory;
+        normalizeCategory(product.category) ===
+          activeCategory;
 
-      const matchesSearch = product.name
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase().trim());
+      const matchesSearch =
+        !normalizedSearch ||
+        product.name
+          .toLowerCase()
+          .includes(normalizedSearch) ||
+        product.category
+          .toLowerCase()
+          .includes(normalizedSearch) ||
+        product.colors.some((color) =>
+          color.toLowerCase().includes(normalizedSearch),
+        );
 
       return matchesCategory && matchesSearch;
     });
@@ -54,17 +102,20 @@ const Shop = () => {
           </h1>
 
           <p className="mt-8 max-w-lg text-sm leading-7 text-white/60">
-            Functional streetwear shaped by pressure and built for movement.
+            Functional streetwear shaped by pressure and built
+            for movement.
           </p>
         </div>
       </section>
 
       <section className="px-5 py-14 sm:px-8 sm:py-20">
         <div className="mx-auto max-w-[1440px]">
-          <div className="mb-10 flex items-end justify-between">
+          <div className="mb-10 flex items-end justify-between gap-5">
             <div>
               <p className="text-xs font-semibold tracking-[0.2em] text-grit-red uppercase">
-                Shop all
+                {searchTerm
+                  ? `Results for “${searchTerm}”`
+                  : "Shop all"}
               </p>
 
               <h2 className="mt-2 font-display text-5xl uppercase sm:text-7xl">
@@ -72,9 +123,11 @@ const Shop = () => {
               </h2>
             </div>
 
-            <p className="text-xs text-grit-earth">
+            <p className="shrink-0 text-xs text-grit-earth">
               {filteredProducts.length}{" "}
-              {filteredProducts.length === 1 ? "product" : "products"}
+              {filteredProducts.length === 1
+                ? "product"
+                : "products"}
             </p>
           </div>
 
@@ -82,13 +135,16 @@ const Shop = () => {
             activeCategory={activeCategory}
             onCategoryChange={handleCategoryChange}
             searchTerm={searchTerm}
-            onSearchChange={setSearchTerm}
+            onSearchChange={handleSearchChange}
           />
 
           {filteredProducts.length > 0 ? (
             <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-12 sm:gap-x-6 lg:grid-cols-4">
               {filteredProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                />
               ))}
             </div>
           ) : (
@@ -103,11 +159,7 @@ const Shop = () => {
 
               <button
                 type="button"
-                onClick={() => {
-                  setActiveCategory("all");
-                  setSearchTerm("");
-                  setSearchParams({});
-                }}
+                onClick={clearFilters}
                 className="mt-7 border border-grit-black px-6 py-3 text-xs font-bold tracking-[0.15em] uppercase transition-colors hover:bg-grit-black hover:text-white"
               >
                 Clear filters

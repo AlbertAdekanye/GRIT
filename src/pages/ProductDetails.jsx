@@ -5,6 +5,7 @@ import ProductCard from "../components/product/ProductCard";
 import { products } from "../data/products";
 import { formatCurrency } from "../utils/formatCurrency";
 import useCart from "../hooks/useCart";
+import SizeGuide from "../components/product/SizeGuide";
 
 const sizes = ["S", "M", "L", "XL"];
 
@@ -21,6 +22,8 @@ const ProductDetails = () => {
   const [message, setMessage] = useState("");
 
   const { addToCart } = useCart();
+
+  const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
 
   if (!product) {
     return (
@@ -138,7 +141,8 @@ const handleAddToBag = () => {
 
                   <button
                     type="button"
-                    className="text-xs text-grit-earth underline"
+                    onClick={() => setSizeGuideOpen(true)}
+                    className="text-xs text-grit-earth underline transition-colors hover:text-grit-red"
                   >
                     Size guide
                   </button>
@@ -229,6 +233,11 @@ const handleAddToBag = () => {
           </div>
         </div>
       </section>
+            <SizeGuide
+        isOpen={sizeGuideOpen}
+        onClose={() => setSizeGuideOpen(false)}
+        category={product.category}
+      />
     </main>
   );
 };

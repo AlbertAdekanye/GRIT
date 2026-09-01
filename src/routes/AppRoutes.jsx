@@ -13,6 +13,8 @@ import Lookbook from "../pages/Lookbook";
 import Contact from "../pages/Contact";
 import Returns from "../pages/Returns";
 import Shipping from "../pages/Shipping";
+import Privacy from "../pages/Privacy";
+import Terms from "../pages/Terms";
 
 const AppRoutes = () => {
   return (
@@ -29,6 +31,8 @@ const AppRoutes = () => {
         <Route path="/contact" element={<Contact />} />
         <Route path="/shipping" element={<Shipping />} />
         <Route path="/returns" element={<Returns />} />
+        <Route path="/privacy" element={<Privacy />} />
+        <Route path="/terms" element={<Terms />} />
       </Route>
 
       <Route path="*" element={<NotFound />} />

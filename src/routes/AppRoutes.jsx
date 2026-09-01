@@ -11,6 +11,8 @@ import Checkout from "../pages/Checkout";
 import PaymentVerify from "../pages/PaymentVerify";
 import Lookbook from "../pages/Lookbook";
 import Contact from "../pages/Contact";
+import Returns from "../pages/Returns";
+import Shipping from "../pages/Shipping";
 
 const AppRoutes = () => {
   return (
@@ -25,6 +27,8 @@ const AppRoutes = () => {
         <Route path="/payment/verify" element={<PaymentVerify />} />
         <Route path="/lookbook" element={<Lookbook />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/shipping" element={<Shipping />} />
+        <Route path="/returns" element={<Returns />} />
       </Route>
 
       <Route path="*" element={<NotFound />} />
